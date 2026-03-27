@@ -79,6 +79,16 @@
     <string name="product_saved">Produto guardado com sucesso</string>
     <string name="quantity_invalid">A quantidade deve ser maior ou igual a 0</string>
 
+    <!-- Setup -->
+    <string name="setup_subtitle">Sincronize o inventario entre varios dispositivos em tempo real.</string>
+    <string name="setup_card_title">Configurar Armazem</string>
+    <string name="setup_card_description">Introduza um codigo de armazem para ligar este dispositivo. Todos os dispositivos com o mesmo codigo partilham os mesmos dados.</string>
+    <string name="warehouse_id_label">Codigo do Armazem</string>
+    <string name="warehouse_id_placeholder">Ex: armazem-lisboa-01</string>
+    <string name="warehouse_id_required">O codigo do armazem e obrigatorio</string>
+    <string name="setup_enter_button">Entrar no Armazem</string>
+    <string name="setup_hint">Dica: partilhe o mesmo codigo com a sua equipa para que todos acedam ao mesmo inventario.</string>
+
     <!-- Common -->
     <string name="back">Voltar</string>
     <string name="edit">Editar</string>

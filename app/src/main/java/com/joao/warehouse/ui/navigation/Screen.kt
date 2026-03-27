@@ -1,6 +1,7 @@
 package com.joao.warehouse.ui.navigation
 
 sealed class Screen(val route: String) {
+    data object Setup : Screen("setup")
     data object Dashboard : Screen("dashboard")
     data object ProductList : Screen("product_list")
     data object ProductForm : Screen("product_form?productId={productId}") {

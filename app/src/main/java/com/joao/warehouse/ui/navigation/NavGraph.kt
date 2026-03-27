@@ -1,12 +1,14 @@
 package com.joao.warehouse.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.joao.warehouse.WarehouseApp
 import com.joao.warehouse.ui.screens.BarcodeScannerScreen
 import com.joao.warehouse.ui.screens.CategoryFormScreen
 import com.joao.warehouse.ui.screens.CategoryListScreen
@@ -14,6 +16,7 @@ import com.joao.warehouse.ui.screens.DashboardScreen
 import com.joao.warehouse.ui.screens.MovementHistoryScreen
 import com.joao.warehouse.ui.screens.ProductFormScreen
 import com.joao.warehouse.ui.screens.ProductListScreen
+import com.joao.warehouse.ui.screens.SetupScreen
 import com.joao.warehouse.ui.screens.StockMovementScreen
 import com.joao.warehouse.ui.viewmodel.CategoryViewModel
 import com.joao.warehouse.ui.viewmodel.DashboardViewModel
@@ -22,16 +25,33 @@ import com.joao.warehouse.ui.viewmodel.StockMovementViewModel
 
 @Composable
 fun NavGraph(navController: NavHostController) {
-    val productViewModel: ProductViewModel = viewModel()
-    val categoryViewModel: CategoryViewModel = viewModel()
-    val stockMovementViewModel: StockMovementViewModel = viewModel()
-    val dashboardViewModel: DashboardViewModel = viewModel()
+    val context = LocalContext.current
+    val app = context.applicationContext as WarehouseApp
+    val startDestination = if (app.isWarehouseConfigured) {
+        Screen.Dashboard.route
+    } else {
+        Screen.Setup.route
+    }
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Dashboard.route
+        startDestination = startDestination
     ) {
+        composable(Screen.Setup.route) {
+            SetupScreen(
+                onWarehouseIdSubmitted = { warehouseId ->
+                    app.initializeRepositories(warehouseId)
+                    navController.navigate(Screen.Dashboard.route) {
+                        popUpTo(Screen.Setup.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
         composable(Screen.Dashboard.route) {
+            val dashboardViewModel: DashboardViewModel = viewModel()
+            val productViewModel: ProductViewModel = viewModel()
+            val categoryViewModel: CategoryViewModel = viewModel()
             DashboardScreen(
                 viewModel = dashboardViewModel,
                 onNavigateToProducts = { navController.navigate(Screen.ProductList.route) },
@@ -42,6 +62,7 @@ fun NavGraph(navController: NavHostController) {
         }
 
         composable(Screen.ProductList.route) {
+            val productViewModel: ProductViewModel = viewModel()
             ProductListScreen(
                 viewModel = productViewModel,
                 onNavigateToForm = { productId ->
@@ -63,8 +84,9 @@ fun NavGraph(navController: NavHostController) {
                 }
             )
         ) { backStackEntry ->
+            val productViewModel: ProductViewModel = viewModel()
+            val categoryViewModel: CategoryViewModel = viewModel()
             val productId = backStackEntry.arguments?.getLong("productId") ?: -1L
-            // Retrieve scanned barcode from savedStateHandle
             val scannedBarcode = backStackEntry.savedStateHandle.get<String>("scanned_barcode")
             ProductFormScreen(
                 productViewModel = productViewModel,
@@ -81,7 +103,6 @@ fun NavGraph(navController: NavHostController) {
         composable(Screen.BarcodeScanner.route) {
             BarcodeScannerScreen(
                 onBarcodeScanned = { barcodeValue ->
-                    // Pass barcode back to the previous screen via savedStateHandle
                     navController.previousBackStackEntry
                         ?.savedStateHandle
                         ?.set("scanned_barcode", barcodeValue)
@@ -94,6 +115,7 @@ fun NavGraph(navController: NavHostController) {
         }
 
         composable(Screen.CategoryList.route) {
+            val categoryViewModel: CategoryViewModel = viewModel()
             CategoryListScreen(
                 viewModel = categoryViewModel,
                 onNavigateToForm = { categoryId ->
@@ -112,6 +134,7 @@ fun NavGraph(navController: NavHostController) {
                 }
             )
         ) { backStackEntry ->
+            val categoryViewModel: CategoryViewModel = viewModel()
             val categoryId = backStackEntry.arguments?.getLong("categoryId") ?: -1L
             CategoryFormScreen(
                 viewModel = categoryViewModel,
@@ -129,6 +152,7 @@ fun NavGraph(navController: NavHostController) {
                 }
             )
         ) { backStackEntry ->
+            val stockMovementViewModel: StockMovementViewModel = viewModel()
             val productId = backStackEntry.arguments?.getLong("productId") ?: -1L
             StockMovementScreen(
                 viewModel = stockMovementViewModel,
@@ -138,6 +162,8 @@ fun NavGraph(navController: NavHostController) {
         }
 
         composable(Screen.MovementHistory.route) {
+            val stockMovementViewModel: StockMovementViewModel = viewModel()
+            val productViewModel: ProductViewModel = viewModel()
             MovementHistoryScreen(
                 viewModel = stockMovementViewModel,
                 productViewModel = productViewModel,

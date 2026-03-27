@@ -1,29 +1,29 @@
 package com.joao.warehouse.data.repository
 
-import com.joao.warehouse.data.dao.ProductDao
 import com.joao.warehouse.data.model.Product
+import com.joao.warehouse.data.sync.FirestoreSync
 import kotlinx.coroutines.flow.Flow
 
-class ProductRepository(private val productDao: ProductDao) {
+class ProductRepository(private val firestoreSync: FirestoreSync) {
 
-    fun getAllProducts(): Flow<List<Product>> = productDao.getAllProducts()
+    fun getAllProducts(): Flow<List<Product>> = firestoreSync.getAllProducts()
 
-    suspend fun getProductById(id: Long): Product? = productDao.getProductById(id)
+    suspend fun getProductById(id: Long): Product? = firestoreSync.getProductById(id)
 
-    fun searchProducts(query: String): Flow<List<Product>> = productDao.searchProducts(query)
+    fun searchProducts(query: String): Flow<List<Product>> = firestoreSync.searchProducts(query)
 
     fun getProductsByCategory(categoryId: Long): Flow<List<Product>> =
-        productDao.getProductsByCategory(categoryId)
+        firestoreSync.getProductsByCategory(categoryId)
 
-    fun getLowStockProducts(): Flow<List<Product>> = productDao.getLowStockProducts()
+    fun getLowStockProducts(): Flow<List<Product>> = firestoreSync.getLowStockProducts()
 
-    fun getProductCount(): Flow<Int> = productDao.getProductCount()
+    fun getProductCount(): Flow<Int> = firestoreSync.getProductCount()
 
-    fun getLowStockCount(): Flow<Int> = productDao.getLowStockCount()
+    fun getLowStockCount(): Flow<Int> = firestoreSync.getLowStockCount()
 
-    suspend fun insert(product: Product): Long = productDao.insert(product)
+    suspend fun insert(product: Product): Long = firestoreSync.insertProduct(product)
 
-    suspend fun update(product: Product) = productDao.update(product)
+    suspend fun update(product: Product) = firestoreSync.updateProduct(product)
 
-    suspend fun delete(product: Product) = productDao.delete(product)
+    suspend fun delete(product: Product) = firestoreSync.deleteProduct(product)
 }
