@@ -28,10 +28,36 @@ jobs:
       - name: Generate Gradle Wrapper
         run: gradle wrapper --gradle-version 8.7
 
+      - name: Generate release keystore
+        run: |
+          keytool -genkeypair \
+            -alias warehouse \
+            -keyalg RSA -keysize 2048 \
+            -validity 10000 \
+            -keystore app/keystore.jks \
+            -storepass warehouse2024 \
+            -keypass warehouse2024 \
+            -dname "CN=Warehouse Manager, OU=Dev, O=Joao, L=Lisbon, ST=Lisbon, C=PT"
+
+      - name: Build release APK
+        env:
+          KEYSTORE_FILE: keystore.jks
+          KEYSTORE_PASSWORD: warehouse2024
+          KEY_ALIAS: warehouse
+          KEY_PASSWORD: warehouse2024
+        run: ./gradlew assembleRelease
+
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: warehouse-manager-release
+          path: app/build/outputs/apk/release/*.apk
+          retention-days: 30
+
       - name: Build debug APK
         run: ./gradlew assembleDebug
 
-      - name: Upload APK artifact
+      - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: warehouse-manager-debug
