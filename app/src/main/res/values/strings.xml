@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Gestor de Armazem</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard">Painel de Controlo</string>
+    <string name="total_products">Total Produtos</string>
+    <string name="low_stock">Stock Baixo</string>
+    <string name="categories">Categorias</string>
+    <string name="stock_movement">Movimentar Stock</string>
+    <string name="low_stock_alerts">Alertas de Stock Baixo</string>
+    <string name="recent_movements">Movimentos Recentes</string>
+    <string name="view_all">Ver todos</string>
+    <string name="no_movements">Nenhum movimento registado.</string>
+
+    <!-- Products -->
+    <string name="products">Produtos</string>
+    <string name="new_product">Novo Produto</string>
+    <string name="edit_product">Editar Produto</string>
+    <string name="add_product">Adicionar Produto</string>
+    <string name="save_changes">Guardar Alteracoes</string>
+    <string name="no_products">Nenhum produto registado.</string>
+    <string name="no_products_found">Nenhum produto encontrado.</string>
+    <string name="tap_to_add_product">Toque no + para adicionar um produto.</string>
+    <string name="search_placeholder">Pesquisar por nome, SKU ou codigo de barras...</string>
+
+    <!-- Product Form -->
+    <string name="name">Nome</string>
+    <string name="name_required">Nome e obrigatorio</string>
+    <string name="description">Descricao</string>
+    <string name="sku">SKU</string>
+    <string name="sku_required">SKU e obrigatorio</string>
+    <string name="quantity">Quantidade</string>
+    <string name="min_stock_level">Stock Minimo</string>
+    <string name="category">Categoria</string>
+    <string name="no_category">Sem categoria</string>
+    <string name="location">Localizacao (Prateleira/Fila)</string>
+    <string name="barcode">Codigo de Barras</string>
+    <string name="units">unidades</string>
+
+    <!-- Categories -->
+    <string name="new_category">Nova Categoria</string>
+    <string name="edit_category">Editar Categoria</string>
+    <string name="add_category">Adicionar Categoria</string>
+    <string name="no_categories">Nenhuma categoria registada.</string>
+    <string name="tap_to_add_category">Toque no + para adicionar uma categoria.</string>
+
+    <!-- Stock Movements -->
+    <string name="movement_type">Tipo de Movimento</string>
+    <string name="entry">Entrada</string>
+    <string name="exit">Saida</string>
+    <string name="select_product">Selecione um produto</string>
+    <string name="no_products_available">Nenhum produto disponivel</string>
+    <string name="quantity_required">Insira uma quantidade valida</string>
+    <string name="reason">Motivo / Observacoes</string>
+    <string name="register_entry">Registar Entrada</string>
+    <string name="register_exit">Registar Saida</string>
+
+    <!-- Movement History -->
+    <string name="movement_history">Historico de Movimentos</string>
+    <string name="loading">Carregando...</string>
+    <string name="product_removed">Produto removido</string>
+    <string name="reason_label">Motivo: %1$s</string>
+
+    <!-- Common -->
+    <string name="back">Voltar</string>
+    <string name="edit">Editar</string>
+    <string name="delete">Eliminar</string>
+</resources>
