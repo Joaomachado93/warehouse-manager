@@ -7,6 +7,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.joao.warehouse.ui.screens.BarcodeScannerScreen
 import com.joao.warehouse.ui.screens.CategoryFormScreen
 import com.joao.warehouse.ui.screens.CategoryListScreen
 import com.joao.warehouse.ui.screens.DashboardScreen
@@ -63,11 +64,32 @@ fun NavGraph(navController: NavHostController) {
             )
         ) { backStackEntry ->
             val productId = backStackEntry.arguments?.getLong("productId") ?: -1L
+            // Retrieve scanned barcode from savedStateHandle
+            val scannedBarcode = backStackEntry.savedStateHandle.get<String>("scanned_barcode")
             ProductFormScreen(
                 productViewModel = productViewModel,
                 categoryViewModel = categoryViewModel,
                 productId = if (productId == -1L) null else productId,
-                onNavigateBack = { navController.popBackStack() }
+                scannedBarcode = scannedBarcode,
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToScanner = {
+                    navController.navigate(Screen.BarcodeScanner.route)
+                }
+            )
+        }
+
+        composable(Screen.BarcodeScanner.route) {
+            BarcodeScannerScreen(
+                onBarcodeScanned = { barcodeValue ->
+                    // Pass barcode back to the previous screen via savedStateHandle
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("scanned_barcode", barcodeValue)
+                    navController.popBackStack()
+                },
+                onCancel = {
+                    navController.popBackStack()
+                }
             )
         }
 

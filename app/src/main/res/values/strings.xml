@@ -62,6 +62,23 @@
     <string name="product_removed">Produto removido</string>
     <string name="reason_label">Motivo: %1$s</string>
 
+    <!-- Barcode Scanner -->
+    <string name="barcode_scanner">Leitor de Codigo de Barras</string>
+    <string name="scan_barcode">Digitalizar Codigo de Barras</string>
+    <string name="cancel">Cancelar</string>
+    <string name="flash">Flash</string>
+    <string name="camera_permission_required">Permissao de camara necessaria</string>
+    <string name="camera_permission_rationale">A permissao da camara e necessaria para digitalizar codigos de barras.</string>
+    <string name="grant_permission">Conceder Permissao</string>
+    <string name="position_barcode">Posicione o codigo de barras dentro da area de leitura</string>
+    <string name="barcode_detected">Codigo de barras detetado</string>
+
+    <!-- Product Form Extra -->
+    <string name="created_at">Data de Criacao</string>
+    <string name="updated_at">Ultima Atualizacao</string>
+    <string name="product_saved">Produto guardado com sucesso</string>
+    <string name="quantity_invalid">A quantidade deve ser maior ou igual a 0</string>
+
     <!-- Common -->
     <string name="back">Voltar</string>
     <string name="edit">Editar</string>

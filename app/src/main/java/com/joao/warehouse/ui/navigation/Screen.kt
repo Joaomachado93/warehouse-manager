@@ -20,4 +20,5 @@ sealed class Screen(val route: String) {
         }
     }
     data object MovementHistory : Screen("movement_history")
+    data object BarcodeScanner : Screen("barcode_scanner")
 }

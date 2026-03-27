@@ -8,11 +8,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,7 +24,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -33,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -40,6 +46,10 @@ import androidx.compose.ui.unit.dp
 import com.joao.warehouse.data.model.Product
 import com.joao.warehouse.ui.viewmodel.CategoryViewModel
 import com.joao.warehouse.ui.viewmodel.ProductViewModel
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,7 +57,9 @@ fun ProductFormScreen(
     productViewModel: ProductViewModel,
     categoryViewModel: CategoryViewModel,
     productId: Long?,
-    onNavigateBack: () -> Unit
+    scannedBarcode: String?,
+    onNavigateBack: () -> Unit,
+    onNavigateToScanner: () -> Unit
 ) {
     val categories by categoryViewModel.categories.collectAsState()
     val isEditing = productId != null
@@ -65,6 +77,22 @@ fun ProductFormScreen(
 
     var nameError by remember { mutableStateOf(false) }
     var skuError by remember { mutableStateOf(false) }
+    var quantityError by remember { mutableStateOf(false) }
+
+    var createdAtTimestamp by remember { mutableLongStateOf(0L) }
+    var updatedAtTimestamp by remember { mutableLongStateOf(0L) }
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy HH:mm", Locale("pt", "PT")) }
+
+    // Handle scanned barcode from navigation result
+    LaunchedEffect(scannedBarcode) {
+        if (!scannedBarcode.isNullOrEmpty()) {
+            barcode = scannedBarcode
+        }
+    }
 
     LaunchedEffect(productId) {
         if (productId != null) {
@@ -79,6 +107,8 @@ fun ProductFormScreen(
                 selectedCategoryId = it.categoryId ?: -1L
                 location = it.location
                 barcode = it.barcode
+                createdAtTimestamp = it.createdAt
+                updatedAtTimestamp = it.updatedAt
             }
         }
     }
@@ -103,7 +133,8 @@ fun ProductFormScreen(
                     navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -152,17 +183,42 @@ fun ProductFormScreen(
                 singleLine = true
             )
 
+            // Barcode field with camera button
+            OutlinedTextField(
+                value = barcode,
+                onValueChange = { barcode = it },
+                label = { Text("Codigo de Barras") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                trailingIcon = {
+                    IconButton(onClick = onNavigateToScanner) {
+                        Icon(
+                            Icons.Default.CameraAlt,
+                            contentDescription = "Digitalizar Codigo de Barras",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+            )
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 OutlinedTextField(
                     value = quantity,
-                    onValueChange = { quantity = it.filter { c -> c.isDigit() } },
+                    onValueChange = {
+                        quantity = it.filter { c -> c.isDigit() }
+                        quantityError = false
+                    },
                     label = { Text("Quantidade") },
                     modifier = Modifier.weight(1f),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true
+                    singleLine = true,
+                    isError = quantityError,
+                    supportingText = if (quantityError) {
+                        { Text("A quantidade deve ser maior ou igual a 0") }
+                    } else null
                 )
 
                 OutlinedTextField(
@@ -221,13 +277,38 @@ fun ProductFormScreen(
                 singleLine = true
             )
 
-            OutlinedTextField(
-                value = barcode,
-                onValueChange = { barcode = it },
-                label = { Text("Codigo de Barras") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
+            // Date fields (read-only, only shown when editing)
+            if (isEditing && createdAtTimestamp > 0L) {
+                OutlinedTextField(
+                    value = dateFormat.format(Date(createdAtTimestamp)),
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Data de Criacao") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                        disabledBorderColor = MaterialTheme.colorScheme.outline,
+                        disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    ),
+                    enabled = false
+                )
+            }
+
+            if (isEditing && updatedAtTimestamp > 0L) {
+                OutlinedTextField(
+                    value = dateFormat.format(Date(updatedAtTimestamp)),
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Ultima Atualizacao") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                        disabledBorderColor = MaterialTheme.colorScheme.outline,
+                        disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    ),
+                    enabled = false
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -235,27 +316,34 @@ fun ProductFormScreen(
                 onClick = {
                     nameError = name.isBlank()
                     skuError = sku.isBlank()
+                    val parsedQuantity = quantity.toIntOrNull()
+                    quantityError = parsedQuantity == null || parsedQuantity < 0
 
-                    if (!nameError && !skuError) {
+                    if (!nameError && !skuError && !quantityError) {
+                        val now = System.currentTimeMillis()
                         val product = Product(
                             id = existingProduct?.id ?: 0,
                             name = name.trim(),
                             description = description.trim(),
                             sku = sku.trim(),
-                            quantity = quantity.toIntOrNull() ?: 0,
+                            quantity = parsedQuantity ?: 0,
                             minStockLevel = minStockLevel.toIntOrNull() ?: 0,
                             categoryId = if (selectedCategoryId == -1L) null else selectedCategoryId,
                             location = location.trim(),
                             barcode = barcode.trim(),
                             imageUri = existingProduct?.imageUri,
-                            createdAt = existingProduct?.createdAt ?: System.currentTimeMillis(),
-                            updatedAt = System.currentTimeMillis()
+                            createdAt = existingProduct?.createdAt ?: now,
+                            updatedAt = now
                         )
 
                         if (isEditing) {
                             productViewModel.updateProduct(product)
                         } else {
                             productViewModel.addProduct(product)
+                        }
+
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Produto guardado com sucesso")
                         }
                         onNavigateBack()
                     }
