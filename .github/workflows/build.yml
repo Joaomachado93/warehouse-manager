@@ -1,4 +1,4 @@
-name: Build APK
+name: Build APK & AAB
 
 on:
   push:
@@ -28,38 +28,47 @@ jobs:
       - name: Generate Gradle Wrapper
         run: gradle wrapper --gradle-version 8.7
 
-      - name: Generate release keystore
+      - name: Decode keystore
         run: |
-          keytool -genkeypair \
-            -alias warehouse \
-            -keyalg RSA -keysize 2048 \
-            -validity 10000 \
-            -keystore app/keystore.jks \
-            -storepass warehouse2024 \
-            -keypass warehouse2024 \
-            -dname "CN=Warehouse Manager, OU=Dev, O=Joao, L=Lisbon, ST=Lisbon, C=PT"
+          if [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
+            echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > app/keystore.jks
+          else
+            keytool -genkeypair \
+              -alias warehouse \
+              -keyalg RSA -keysize 2048 \
+              -validity 10000 \
+              -keystore app/keystore.jks \
+              -storepass Warehouse2024! \
+              -keypass Warehouse2024! \
+              -dname "CN=Joao Machado, OU=Dev, O=Joao Machado, L=Lisbon, ST=Lisbon, C=PT"
+          fi
 
       - name: Build release APK
         env:
           KEYSTORE_FILE: keystore.jks
-          KEYSTORE_PASSWORD: warehouse2024
-          KEY_ALIAS: warehouse
-          KEY_PASSWORD: warehouse2024
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD || 'Warehouse2024!' }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS || 'warehouse' }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD || 'Warehouse2024!' }}
         run: ./gradlew assembleRelease
+
+      - name: Build release AAB (Play Store)
+        env:
+          KEYSTORE_FILE: keystore.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD || 'Warehouse2024!' }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS || 'warehouse' }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD || 'Warehouse2024!' }}
+        run: ./gradlew bundleRelease
 
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
         with:
-          name: warehouse-manager-release
+          name: warehouse-manager-release-apk
           path: app/build/outputs/apk/release/*.apk
-          retention-days: 30
+          retention-days: 90
 
-      - name: Build debug APK
-        run: ./gradlew assembleDebug
-
-      - name: Upload Debug APK
+      - name: Upload Release AAB (Play Store)
         uses: actions/upload-artifact@v4
         with:
-          name: warehouse-manager-debug
-          path: app/build/outputs/apk/debug/*.apk
-          retention-days: 30
+          name: warehouse-manager-release-aab
+          path: app/build/outputs/bundle/release/*.aab
+          retention-days: 90
