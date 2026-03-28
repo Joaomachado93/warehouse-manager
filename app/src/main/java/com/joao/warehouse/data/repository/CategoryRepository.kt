@@ -1,20 +1,20 @@
 package com.joao.warehouse.data.repository
 
+import com.joao.warehouse.data.dao.CategoryDao
 import com.joao.warehouse.data.model.Category
-import com.joao.warehouse.data.sync.FirestoreSync
 import kotlinx.coroutines.flow.Flow
 
-class CategoryRepository(private val firestoreSync: FirestoreSync) {
+class CategoryRepository(private val categoryDao: CategoryDao) {
 
-    fun getAllCategories(): Flow<List<Category>> = firestoreSync.getAllCategories()
+    fun getAllCategories(): Flow<List<Category>> = categoryDao.getAllCategories()
 
-    suspend fun getCategoryById(id: Long): Category? = firestoreSync.getCategoryById(id)
+    suspend fun getCategoryById(id: Long): Category? = categoryDao.getCategoryById(id)
 
-    suspend fun insert(category: Category): Long = firestoreSync.insertCategory(category)
+    suspend fun insert(category: Category): Long = categoryDao.insert(category)
 
-    suspend fun update(category: Category) = firestoreSync.updateCategory(category)
+    suspend fun update(category: Category) = categoryDao.update(category)
 
-    suspend fun delete(category: Category) = firestoreSync.deleteCategory(category)
+    suspend fun delete(category: Category) = categoryDao.delete(category)
 
-    fun getCategoryCount(): Flow<Int> = firestoreSync.getCategoryCount()
+    fun getCategoryCount(): Flow<Int> = categoryDao.getCategoryCount()
 }

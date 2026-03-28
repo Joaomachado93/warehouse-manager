@@ -1,14 +1,12 @@
 package com.joao.warehouse.ui.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.joao.warehouse.WarehouseApp
 import com.joao.warehouse.ui.screens.BarcodeScannerScreen
 import com.joao.warehouse.ui.screens.CategoryFormScreen
 import com.joao.warehouse.ui.screens.CategoryListScreen
@@ -16,7 +14,6 @@ import com.joao.warehouse.ui.screens.DashboardScreen
 import com.joao.warehouse.ui.screens.MovementHistoryScreen
 import com.joao.warehouse.ui.screens.ProductFormScreen
 import com.joao.warehouse.ui.screens.ProductListScreen
-import com.joao.warehouse.ui.screens.SetupScreen
 import com.joao.warehouse.ui.screens.StockMovementScreen
 import com.joao.warehouse.ui.viewmodel.CategoryViewModel
 import com.joao.warehouse.ui.viewmodel.DashboardViewModel
@@ -25,29 +22,10 @@ import com.joao.warehouse.ui.viewmodel.StockMovementViewModel
 
 @Composable
 fun NavGraph(navController: NavHostController) {
-    val context = LocalContext.current
-    val app = context.applicationContext as WarehouseApp
-    val startDestination = if (app.isWarehouseConfigured) {
-        Screen.Dashboard.route
-    } else {
-        Screen.Setup.route
-    }
-
     NavHost(
         navController = navController,
-        startDestination = startDestination
+        startDestination = Screen.Dashboard.route
     ) {
-        composable(Screen.Setup.route) {
-            SetupScreen(
-                onWarehouseIdSubmitted = { warehouseId ->
-                    app.initializeRepositories(warehouseId)
-                    navController.navigate(Screen.Dashboard.route) {
-                        popUpTo(Screen.Setup.route) { inclusive = true }
-                    }
-                }
-            )
-        }
-
         composable(Screen.Dashboard.route) {
             val dashboardViewModel: DashboardViewModel = viewModel()
             val productViewModel: ProductViewModel = viewModel()

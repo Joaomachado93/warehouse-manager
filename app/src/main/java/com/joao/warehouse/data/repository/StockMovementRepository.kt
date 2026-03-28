@@ -1,20 +1,20 @@
 package com.joao.warehouse.data.repository
 
+import com.joao.warehouse.data.dao.StockMovementDao
 import com.joao.warehouse.data.model.StockMovement
-import com.joao.warehouse.data.sync.FirestoreSync
 import kotlinx.coroutines.flow.Flow
 
-class StockMovementRepository(private val firestoreSync: FirestoreSync) {
+class StockMovementRepository(private val stockMovementDao: StockMovementDao) {
 
-    fun getAllMovements(): Flow<List<StockMovement>> = firestoreSync.getAllMovements()
+    fun getAllMovements(): Flow<List<StockMovement>> = stockMovementDao.getAllMovements()
 
     fun getMovementsByProduct(productId: Long): Flow<List<StockMovement>> =
-        firestoreSync.getMovementsByProduct(productId)
+        stockMovementDao.getMovementsByProduct(productId)
 
     fun getRecentMovements(limit: Int = 10): Flow<List<StockMovement>> =
-        firestoreSync.getRecentMovements(limit)
+        stockMovementDao.getRecentMovements(limit)
 
-    suspend fun insert(movement: StockMovement): Long = firestoreSync.insertMovement(movement)
+    suspend fun insert(movement: StockMovement): Long = stockMovementDao.insert(movement)
 
-    fun getMovementCount(): Flow<Int> = firestoreSync.getMovementCount()
+    fun getMovementCount(): Flow<Int> = stockMovementDao.getMovementCount()
 }
